@@ -13,3 +13,87 @@ base_ignore_hostname_setup_error: false
 
 base_manage_host_r53: false
 base_r53_internal_zone: ""
+
+
+default_packages:
+  debian-common:
+        - rsync
+        - tar
+        - git-core
+        - vim
+        - jq
+        - tmux
+        - htop
+        - unzip
+        - telnet
+        - ntp
+        - locales
+        - lsof
+        - curl
+        - zip
+        - nfs-common
+        - acl
+        - apt-transport-https
+
+  redhat-common:
+        - git
+        - vim
+        - tmux
+        - telnet
+        - ntp
+        - lsof
+        - xfsprogs
+        - lvm2
+        - unzip
+        - ed
+        - libselinux-python
+        - python-setuptools
+        - nfs-utils
+        - gnupg2
+
+  # Default for Debian and Ubuntu
+  debian:
+        - python3
+        - python3-pip
+        - python3-boto3
+        - python3-botocore
+
+  ubuntu-16-19:
+        - python-pip
+        - python-boto3
+        - python-botocore
+
+  debian-7-9:
+        - python-pip
+        - python-boto3
+        - python-botocore
+
+  debian-10:
+        - python3
+        - python3-pip
+        - python3-boto3
+        - python3-botocore
+        - python-backports.ssl-match-hostname
+
+  # Default for RedHat and Centos
+  redhat:
+        - python3-pip
+
+# To simplify packages definition, we associate a OS version to a range
+cycloid_packages_version_range:
+  debian:
+    "7": "7-9"
+    "8": "7-9"
+    "9": "7-9"
+  ubuntu:
+    "16": "16-19"
+    "17": "16-19"
+    "18": "16-19"
+    "19": "16-19"
+  redhat:
+
+# Use range if define, or keep ansible_distribution_major_version
+cycloid_package_version: "{{ cycloid_packages_version_range[ansible_distribution | lower][ansible_distribution_major_version] | default(ansible_distribution_major_version) }}"
+
+# Get the specific distrib package + common
+cycloid_packages_list: "{{ ( default_packages[ansible_distribution|lower + '-' + cycloid_package_version] | default(default_packages[ansible_os_family | lower]) ) + default_packages[ansible_os_family|lower + '-common'] }}"
