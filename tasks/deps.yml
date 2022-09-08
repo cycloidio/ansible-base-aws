@@ -1,98 +1,43 @@
 ---
 - name: Update apt cache.
-  apt: update_cache=yes cache_valid_time=86400
-  ignore_errors: yes
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-
-- name: Debian | Install list of packages
   apt:
-    state: present
-    pkg:
-      - rsync
-      - tar
-      - git-core
-      - vim
-      - jq
-      - tmux
-      - htop
-      - unzip
-      - telnet
-      - ntp
-      - python-pip
-      - locales
-      - apt-transport-https
-      - lsof
-      - curl
-      - zip
-      - nfs-common
-      - acl
-      - python-boto3
-      - python-botocore
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
-
-- name: Debian 8 | Install list of packages
-  apt:
-    state: present
-    pkg:
-      - dbus
-  when: ansible_distribution == 'Debian' and ansible_distribution_release == 'jessie'
-
-- name: Centos | Install list of packages
-  yum:
-    state: present
     update_cache: yes
-    name:
-      - git
-      - vim
-      - tmux
-      - telnet
-      - ntp
-      - lsof
-      - xfsprogs
-      - lvm2
-      - unzip
-      - ed
-      - libselinux-python
-      - python-setuptools
-      - nfs-utils
-      - python-boto3
-      - python-botocore
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+    cache_valid_time: 86400
+  ignore_errors: yes
+  when: ansible_os_family == 'Debian'
 
-- name: Centos | Install pip via easy_install
-  easy_install:
-    name: pip
-    state: latest
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+- name: Update yum packages
+  yum:
+    update_cache: yes
+  when: ansible_os_family == 'RedHat'
+  ignore_errors: yes
+
+- name: Install package depends | pre-setup
+  package:
+    name: "{{ cycloid_packages_list }}"
+    state: present
 
 - locale_gen: name=fr_FR.UTF-8 state=present
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: "Vim config file"
   copy: src=vimrc
         dest=/etc/vim/vimrc
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  when: ansible_os_family == 'Debian'
 
 - name: "Vim config file"
   copy: src=vimrc
         dest=/etc/vimrc
-  when: ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat'
+  when: ansible_os_family == 'RedHat'
 
 - group: name=admin state=present
 - user: name=admin group=admin shell=/bin/bash state=present skeleton=/etc/skel
 
-- name: Debian | Install extra list of packages
-  apt:
-    state: present
-    pkg: "{{ base_extra_packages }}"
-  when: base_extra_packages|length > 0 and (ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu')
-
-- name: Centos | Install extra list of packages
-  yum:
-    state: present
-    update_cache: yes
+- name: Install extra list of packages
+  package:
     name: "{{ base_extra_packages }}"
-  when: base_extra_packages|length > 0 and (ansible_distribution == 'CentOS' or ansible_distribution == 'Red Hat Enterprise Linux' or ansible_distribution == 'RedHat')
+    state: present
+  when: base_extra_packages|length > 0
 
 - name: Install extra list of pip packages
   pip:
