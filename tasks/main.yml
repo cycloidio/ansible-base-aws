@@ -1,8 +1,8 @@
 ---
-- include: deps.yml
+- include_tasks: deps.yml
   tags: deps
   when: base_deps is defined and base_deps == True
 
-- include: hosts.yml
+- include_tasks: hosts.yml
   tags: hosts
   when: base_hosts is defined and base_hosts == True
