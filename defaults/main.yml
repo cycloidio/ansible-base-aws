@@ -19,34 +19,33 @@ default_packages:
   debian-common:
         - rsync
         - tar
-        - git-core
+        - git
         - vim
         - jq
         - tmux
         - htop
         - unzip
         - telnet
-        - ntp
+        - chrony
         - locales
         - lsof
         - curl
         - zip
         - nfs-common
         - acl
-        - apt-transport-https
 
   redhat-common:
         - git
         - vim
         - tmux
         - telnet
-        - ntp
+        - chrony
         - lsof
         - xfsprogs
         - lvm2
         - unzip
         - ed
-        - libselinux-python
+        - python3-libselinux
         - python-setuptools
         - nfs-utils
         - gnupg2
