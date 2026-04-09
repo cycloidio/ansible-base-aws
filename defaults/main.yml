@@ -23,7 +23,6 @@ default_packages:
         - vim
         - jq
         - tmux
-        - htop
         - unzip
         - telnet
         - chrony
