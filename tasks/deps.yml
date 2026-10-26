@@ -17,7 +17,6 @@
       - htop
       - unzip
       - telnet
-      - ntp
       - python3-pip
       - locales
       - apt-transport-https
@@ -29,6 +28,24 @@
       - python3-boto3
       - python3-botocore
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+# Time sync: 'ntp' package was removed from Ubuntu >= 24.04 repos. Use chrony there,
+# keep ntp for older Debian/Ubuntu to preserve existing behavior.
+- name: Debian/Ubuntu | Install ntp (time sync) on releases that still ship it
+  apt:
+    state: present
+    pkg:
+      - ntp
+  when: >
+    (ansible_distribution == 'Debian') or
+    (ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('24.04', '<'))
+
+- name: Ubuntu >= 24.04 | Install chrony (time sync, replaces removed ntp package)
+  apt:
+    state: present
+    pkg:
+      - chrony
+  when: ansible_distribution == 'Ubuntu' and ansible_distribution_version is version('24.04', '>=')
 
 - name: Debian 8 | Install list of packages
   apt:
